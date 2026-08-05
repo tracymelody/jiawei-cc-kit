@@ -17,43 +17,82 @@ When the user calls team members by name + gives a task, route to the right work
 | Jobs | Experience | Taste, saying no, invisible interface, premium coherence |
 | Karpathy | Learning | Verifiability as delegation filter, metrics, compounding lessons |
 
-**Persona canon:** `MEMBERS.md` in this directory — full cards with core principles and kill questions.
+**Persona canon:** [MEMBERS.md](MEMBERS.md) — full cards with core principles and kill questions. Read it before answering inline dispatches like "Musk, should we X?".
 
 ## Routing Rules
 
 | User says | Route to |
 |-----------|----------|
-| "brainstorm [topic]" / all 5 names + question | `Workflow({name: 'brainstorm', args: topic})` |
-| "sprint" / "build" / "let's work on [feature]" | `Workflow({name: 'sprint', args: {goal: '<sprint-goal-file>'}})` |
-| "diagnose [bug]" / "why is [X] broken" | `Workflow({name: 'diagnose', args: message})` |
-| "Boris/Linus, review [PR/code]" | `Workflow({name: 'team-review', args: {pr: '<PR number or URL>'}})` |
-| "Musk, should we [X]?" | Quick inline analysis (no workflow needed) — answer in Musk's voice using MEMBERS.md |
+| "brainstorm [topic]" / all 5 names + question | Run workflow [workflows/brainstorm.js](workflows/brainstorm.js) |
+| "sprint" / "build" / "let's work on [feature]" | Run workflow [workflows/sprint.js](workflows/sprint.js) |
+| "diagnose [bug]" / "why is [X] broken" | Run workflow [workflows/diagnose.js](workflows/diagnose.js) |
+| "Boris/Linus, review [PR/code]" | Run workflow [workflows/team-review.js](workflows/team-review.js) |
+| "Musk, should we [X]?" | Quick inline analysis (no workflow) — answer in Musk's voice using MEMBERS.md |
 | "Jobs, how does [X] feel?" | UX judgment inline |
 
-## CRITICAL RULE
+## How to Run Workflows
 
-**NEVER pass `model` parameter when spawning agents.** Not in Agent tool, not in Workflow. Let all sub-agents INHERIT the session model.
+**IMPORTANT**: When routing to a workflow, you MUST:
+1. Read the workflow file using the relative path shown above (e.g., read `workflows/brainstorm.js` relative to this skill file)
+2. Call the `Workflow` tool with `scriptPath` set to the **absolute path** of the workflow file you just read
+3. Pass appropriate `args` (see examples below)
 
-## Process
+Example:
+```
+// User says: "brainstorm: should we use GraphQL or REST?"
+// 1. Read workflows/brainstorm.js (relative to this SKILL.md)
+// 2. Workflow({scriptPath: "/absolute/path/to/workflows/brainstorm.js", args: "Should we use GraphQL or REST?"})
+```
 
-1. Parse WHO is called (which team members)
-2. Parse WHAT they're asked to do
-3. Route to the appropriate workflow or inline answer
-4. Report results when done
-5. When spawning Agent: NO model parameter. EVER.
+## CRITICAL RULES
+
+- **NEVER pass `model` parameter when spawning agents.** Not in Agent tool, not in Workflow. Let all sub-agents INHERIT the session model.
+- **Always read MEMBERS.md** before answering inline dispatches (no workflow needed).
+
+## Workflow Args Reference
+
+### brainstorm
+```
+args: "The question to debate"
+// or
+args: {question: "...", context: "optional background info"}
+```
+
+### team-review
+```
+args: {pr: "123"}          // PR number
+args: {pr: "full-url"}     // PR URL
+args: {diff: "raw diff"}   // Raw diff text
+```
+
+### sprint
+```
+args: {goal: "docs/sprints/sprint-001.md"}           // full run
+args: {goal: "docs/sprints/sprint-001.md", phase: "plan"}  // plan only
+```
+
+### diagnose
+```
+args: "description of what fails"
+// or
+args: {message: "what fails", expected: "what should happen", state: {extra: "context"}}
+```
 
 ## Examples
 
 ```
 User: "Boris and Linus, review PR 212"
-→ Workflow({name: 'team-review', args: {pr: '212'}})
+→ Read workflows/team-review.js, then Workflow({scriptPath: "...", args: {pr: '212'}})
 
 User: "Musk, Jobs, Karpathy — how should we increase conversion?"
-→ Workflow({name: 'brainstorm', args: 'How should we increase conversion?'})
+→ Read workflows/brainstorm.js, then Workflow({scriptPath: "...", args: 'How should we increase conversion?'})
 
 User: "Let's sprint on the search integration"
-→ Workflow({name: 'sprint', args: {goal: 'docs/sprints/sprint-002.md'}})
+→ Read workflows/sprint.js, then Workflow({scriptPath: "...", args: {goal: 'docs/sprints/sprint-003.md'}})
 
 User: "Boris, why does the search return empty?"
-→ Workflow({name: 'diagnose', args: 'search returns empty results'})
+→ Read workflows/diagnose.js, then Workflow({scriptPath: "...", args: 'search returns empty results'})
+
+User: "Musk, should we build feature X?"
+→ Read MEMBERS.md, answer inline in Musk's voice (no workflow needed for quick opinions)
 ```
