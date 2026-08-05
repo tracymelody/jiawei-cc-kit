@@ -27,6 +27,7 @@ When the user calls team members by name + gives a task, route to the right work
 | "sprint" / "build" / "let's work on [feature]" | Read [workflows/sprint.js](workflows/sprint.js), run as workflow |
 | "diagnose [bug]" / "why is [X] broken" | Read [workflows/diagnose.js](workflows/diagnose.js), run as workflow |
 | "Boris/Linus, review [PR/code]" | Read [workflows/team-review.js](workflows/team-review.js), run as workflow |
+| "hunt" / "fuzz" / "pentest" / "stress test" | Read [workflows/hunt.js](workflows/hunt.js), run as workflow |
 | "Musk, should we [X]?" | Read MEMBERS.md, answer inline in persona voice (no workflow) |
 | "Jobs, how does [X] feel?" | Read MEMBERS.md, answer inline in persona voice (no workflow) |
 
@@ -79,6 +80,13 @@ args: {goal: "docs/sprints/sprint-001.md", phase: "plan"}  // plan only
 ```
 args: "description of what fails"
 args: {message: "what fails", expected: "what should happen", state: {extra: "context"}}
+```
+
+### hunt.js
+```
+args: {endpoint: "http://localhost:3000", attacks: 8}
+args: {endpoint: "http://localhost:8100", focus: "auth"}
+args: {focus: "governance"}   // no endpoint = auto-detect from project
 ```
 
 ## Examples
