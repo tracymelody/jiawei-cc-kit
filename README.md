@@ -1,18 +1,11 @@
-# claude-team-kit
+# jiawei-cc-kit
 
-A Claude Code plugin that gives your team an AI Dream Team — 5 expert personas for brainstorming, code review, sprints, and bug diagnosis. Works with any project (frontend, backend, fullstack).
+An opinionated Claude Code plugin — AI Dream Team (5 expert personas) for brainstorming, code review, sprints, bug diagnosis, and code quality patrol. Works with any project (frontend, backend, fullstack).
 
 ## Install
 
 ```bash
-claude plugin install <your-org>/claude-team-kit
-```
-
-Or add to your project's `.claude/settings.json`:
-```json
-{
-  "plugins": ["<your-org>/claude-team-kit"]
-}
+claude plugin install tracymelody/jiawei-cc-kit
 ```
 
 ## What's included
