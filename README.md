@@ -35,6 +35,7 @@ Or add to your project's `.claude/settings.json`:
 | `Boris and Linus, review PR 123` | **Team Review**: parallel review + E2E verify + devil's advocate + blindspot scan + simplify |
 | `Let's sprint on feature X` | **Sprint**: plan → sequential build → quality gate → experience check → retro |
 | `Diagnose: clicking submit does nothing` | **Diagnose**: reproduce → trace through layers → root cause → fix plan |
+| `Hunt bugs in this API` | **Hunt**: adversarial fuzzing — hacker mindset, adaptive, auto-triage |
 
 ### Slash Commands
 
@@ -102,6 +103,20 @@ The sprint workflow reads your project's CLAUDE.md for context. Add verification
 - `npm run e2e` — end-to-end
 - `curl localhost:3000/health` — server health check
 ```
+
+## Recommended Companion Plugins
+
+This plugin focuses on team workflows and code quality. For other capabilities, install these alongside:
+
+| Plugin | What it adds | Install |
+|--------|-------------|---------|
+| **mattpocock/skills** | `/grill-me` (idea sharpening), `/to-spec`, `/to-issues`, `/tdd` | `npx skills@latest add mattpocock/skills` |
+| **chrome-devtools-mcp** | Browser debugging, screenshots, performance analysis | `claude plugin install chrome-devtools-mcp` |
+| **figma** | Design ↔ code bridge, Figma file editing | `claude plugin install figma` |
+| **code-review** | Automated PR review with confidence scoring | `claude plugin install code-review` |
+| **frontend-design** | High-quality UI/component generation | `claude plugin install frontend-design` |
+
+Plugins are additive — install as many as you need. They don't conflict.
 
 ## Philosophy
 
