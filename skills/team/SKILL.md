@@ -21,60 +21,63 @@ When the user calls team members by name + gives a task, route to the right work
 
 ## Routing Rules
 
-| User says | Route to |
-|-----------|----------|
-| "brainstorm [topic]" / all 5 names + question | Run workflow [workflows/brainstorm.js](workflows/brainstorm.js) |
-| "sprint" / "build" / "let's work on [feature]" | Run workflow [workflows/sprint.js](workflows/sprint.js) |
-| "diagnose [bug]" / "why is [X] broken" | Run workflow [workflows/diagnose.js](workflows/diagnose.js) |
-| "Boris/Linus, review [PR/code]" | Run workflow [workflows/team-review.js](workflows/team-review.js) |
-| "Musk, should we [X]?" | Quick inline analysis (no workflow) — answer in Musk's voice using MEMBERS.md |
-| "Jobs, how does [X] feel?" | UX judgment inline |
+| User says | Action |
+|-----------|--------|
+| "brainstorm [topic]" / multiple names + question | Read [workflows/brainstorm.js](workflows/brainstorm.js), run as workflow |
+| "sprint" / "build" / "let's work on [feature]" | Read [workflows/sprint.js](workflows/sprint.js), run as workflow |
+| "diagnose [bug]" / "why is [X] broken" | Read [workflows/diagnose.js](workflows/diagnose.js), run as workflow |
+| "Boris/Linus, review [PR/code]" | Read [workflows/team-review.js](workflows/team-review.js), run as workflow |
+| "Musk, should we [X]?" | Read MEMBERS.md, answer inline in persona voice (no workflow) |
+| "Jobs, how does [X] feel?" | Read MEMBERS.md, answer inline in persona voice (no workflow) |
 
 ## How to Run Workflows
 
-**IMPORTANT**: When routing to a workflow, you MUST:
-1. Read the workflow file using the relative path shown above (e.g., read `workflows/brainstorm.js` relative to this skill file)
-2. Call the `Workflow` tool with `scriptPath` set to the **absolute path** of the workflow file you just read
-3. Pass appropriate `args` (see examples below)
+When routing to a workflow:
 
-Example:
+1. **Read** the workflow `.js` file using the relative path above
+2. **Call** the `Workflow` tool with the `script` parameter set to the **full file content** you just read
+3. **Pass** the appropriate `args` for the workflow (see reference below)
+
 ```
-// User says: "brainstorm: should we use GraphQL or REST?"
-// 1. Read workflows/brainstorm.js (relative to this SKILL.md)
-// 2. Workflow({scriptPath: "/absolute/path/to/workflows/brainstorm.js", args: "Should we use GraphQL or REST?"})
+// Example: user says "brainstorm: should we use GraphQL or REST?"
+// Step 1: Read workflows/brainstorm.js → get file content
+// Step 2: Workflow({script: <file content>, args: "Should we use GraphQL or REST?"})
 ```
+
+**DO NOT** use `Workflow({name: ...})` — these workflows are not registered globally.
+**DO NOT** use `Workflow({scriptPath: ...})` — the install path is dynamic and unreliable.
+**ALWAYS** use `Workflow({script: <content you read>})` — this always works.
 
 ## CRITICAL RULES
 
-- **NEVER pass `model` parameter when spawning agents.** Not in Agent tool, not in Workflow. Let all sub-agents INHERIT the session model.
-- **Always read MEMBERS.md** before answering inline dispatches (no workflow needed).
+- **NEVER pass `model` parameter** when spawning agents. Not in Agent tool, not in Workflow. Let all sub-agents INHERIT the session model.
+- **Always read MEMBERS.md** before answering inline dispatches.
+- **Use `script` not `scriptPath` or `name`** when calling Workflow.
 
 ## Workflow Args Reference
 
-### brainstorm
+### brainstorm.js
 ```
 args: "The question to debate"
-// or
 args: {question: "...", context: "optional background info"}
 ```
 
-### team-review
+### team-review.js
 ```
 args: {pr: "123"}          // PR number
 args: {pr: "full-url"}     // PR URL
 args: {diff: "raw diff"}   // Raw diff text
 ```
 
-### sprint
+### sprint.js
 ```
 args: {goal: "docs/sprints/sprint-001.md"}           // full run
 args: {goal: "docs/sprints/sprint-001.md", phase: "plan"}  // plan only
 ```
 
-### diagnose
+### diagnose.js
 ```
 args: "description of what fails"
-// or
 args: {message: "what fails", expected: "what should happen", state: {extra: "context"}}
 ```
 
@@ -82,17 +85,22 @@ args: {message: "what fails", expected: "what should happen", state: {extra: "co
 
 ```
 User: "Boris and Linus, review PR 212"
-→ Read workflows/team-review.js, then Workflow({scriptPath: "...", args: {pr: '212'}})
+→ Read workflows/team-review.js
+→ Workflow({script: <content>, args: {pr: "212"}})
 
-User: "Musk, Jobs, Karpathy — how should we increase conversion?"
-→ Read workflows/brainstorm.js, then Workflow({scriptPath: "...", args: 'How should we increase conversion?'})
+User: "Should we use monorepo or polyrepo?"
+→ Read workflows/brainstorm.js
+→ Workflow({script: <content>, args: "Should we use monorepo or polyrepo?"})
 
 User: "Let's sprint on the search integration"
-→ Read workflows/sprint.js, then Workflow({scriptPath: "...", args: {goal: 'docs/sprints/sprint-003.md'}})
+→ Read workflows/sprint.js
+→ Workflow({script: <content>, args: {goal: "docs/sprints/sprint-003.md"}})
 
-User: "Boris, why does the search return empty?"
-→ Read workflows/diagnose.js, then Workflow({scriptPath: "...", args: 'search returns empty results'})
+User: "Why does login fail on mobile?"
+→ Read workflows/diagnose.js
+→ Workflow({script: <content>, args: "login fails on mobile"})
 
 User: "Musk, should we build feature X?"
-→ Read MEMBERS.md, answer inline in Musk's voice (no workflow needed for quick opinions)
+→ Read MEMBERS.md
+→ Answer inline in Musk's voice (no workflow for quick opinions)
 ```
