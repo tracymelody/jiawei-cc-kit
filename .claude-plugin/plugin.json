@@ -1,0 +1,8 @@
+{
+  "name": "claude-team-kit",
+  "description": "AI Dream Team workflows: 5 expert personas (Musk/Boris/Linus/Jobs/Karpathy) for brainstorming, code review, sprints, bug diagnosis, and code quality patrol. Works with any project — frontend or backend.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Jiawei Cui"
+  }
+}
