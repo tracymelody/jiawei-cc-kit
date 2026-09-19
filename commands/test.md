@@ -1,30 +1,32 @@
 # Test Runner
 
-Run the project's test suite intelligently.
+Run tests for the current project. Auto-detects framework and scope.
 
-## Instructions
+## Process
 
-1. **Detect test framework**:
-   - Check package.json scripts (jest, vitest, mocha, playwright)
-   - Check pyproject.toml / setup.cfg (pytest, unittest)
-   - Check Makefile targets
-   - Check for go test, cargo test, etc.
+1. **Detect framework** — check which test runner the project uses:
+   - `pyproject.toml` with `[tool.pytest]` or `pytest.ini` → pytest
+   - `manage.py` → Django tests
+   - Otherwise → `python -m unittest discover`
 
-2. **Run tests**:
-   - If argument provided: run only tests matching that pattern
-   - If no argument: run the full suite
-   - If tests are slow (>60s), run only tests related to recently changed files first
+2. **Detect scope** from arguments:
+   - `/test` (no args) → run all tests
+   - `/test <path>` → run that specific file/directory
+   - `/test changed` → only test files changed vs main branch:
+     ```bash
+     git diff --name-only main...HEAD | grep '_test\.py$\|test_.*\.py$'
+     ```
 
-3. **On failure**:
-   - Show the failing test name and assertion
-   - Show the relevant source code around the failure
-   - Propose a fix if the test is correct but the code is wrong
-   - Propose a test fix if the code is correct but the test is stale
+3. **Run with useful defaults**:
+   ```bash
+   # pytest projects
+   pytest -v --tb=short
 
-4. **Report**: Pass/fail count, time taken, and any action needed.
+   # With poetry
+   poetry run pytest -v --tb=short
 
-## Rules
+   # Changed files only
+   pytest -v --tb=short <changed-test-files>
+   ```
 
-- Never mark a test as skipped to make the suite pass
-- If a test is genuinely obsolete (tests removed functionality), delete it
-- If the test framework isn't installed, install it first
+4. **On failure** — show only the first failing test in detail, summarize the rest.

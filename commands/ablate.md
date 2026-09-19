@@ -1,36 +1,50 @@
 # Ablate — System Prompt Audit
 
-For LLM-based projects: audit system prompts for bloat, contradictions, and dead rules.
+Audit the current project's CLAUDE.md / system prompt for unnecessary instructions.
 
 ## Instructions
 
-1. **Find all prompts**: grep for system prompts, prompt templates, instruction files
-   - Look in: `prompts/`, `agents/`, `*.prompt`, `*.md` with instructions, template strings
-   - Include: CLAUDE.md, agent definitions, tool descriptions
+1. **Read** all CLAUDE.md files in this project (root + subdirectories).
 
-2. **For each prompt, check**:
-   - **Dead rules**: Instructions that reference features/behaviors that no longer exist in code
-   - **Contradictions**: Two rules that give opposite guidance
-   - **Redundancy**: Same instruction stated multiple ways (pick the best one, delete the rest)
-   - **Bloat**: Rules that could be one line but are a paragraph
-   - **Cargo cult**: Rules copied from elsewhere that don't apply to this system
+2. **Categorize** each instruction as one of:
+   - **Definitional**: Describes what the system IS (role, identity, boundaries) — keep
+   - **Corrective**: Tells the model NOT to do something it might do wrong — candidate for removal
+   - **Procedural**: Step-by-step HOW instructions — candidate for simplification
 
-3. **For each finding**:
-   - Quote the problematic line(s)
-   - Explain why it's dead/contradictory/redundant
-   - Propose the fix (delete, merge, shorten)
+3. **For each corrective instruction**, assess:
+   - Is this something the current model (Opus 4.6+) would do wrong WITHOUT the instruction?
+   - Or was this added to fix a behavior of an older model?
+   - Score: KEEP (still needed) / TEST (try removing) / DELETE (clearly outdated)
 
-4. **Apply safe fixes directly**:
-   - Delete confirmed dead rules (grep proves the feature doesn't exist)
-   - Merge redundant statements
-   - Shorten verbose instructions
+4. **For each procedural instruction**, assess:
+   - Could this be replaced by just stating the goal + exit criteria?
+   - Score: KEEP / SIMPLIFY (rewrite as goal) / DELETE
 
-5. **Flag for human review** (don't fix):
-   - Possible contradictions (might be intentional priority ordering)
-   - Rules you can't verify are dead without running the system
+5. **Output a report**:
+   ```
+   ## Ablation Report for <project>
+   
+   Current: X lines across N files
+   Recommended: Y lines (Z% reduction)
+   
+   ### DELETE (confident these are unnecessary)
+   - Line/instruction + reason
+   
+   ### TEST (remove and observe for 1 week)
+   - Line/instruction + what to watch for
+   
+   ### SIMPLIFY (rewrite as goal, not procedure)
+   - Before → After
+   
+   ### KEEP
+   - Line/instruction + why it's still needed
+   ```
+
+6. **Don't auto-apply** — this is an audit. Present findings for human decision.
 
 ## Rules
 
-- Evidence required: for every "dead rule" claim, show the grep that proves the feature is gone
-- Don't rewrite prompts for style — only fix actual problems
-- Commit as: "chore: ablate dead rules from [prompt name]"
+- Be aggressive — Boris deleted 80% and it got better
+- But don't delete identity/role definitions
+- Don't delete safety guardrails (they're definitional, not corrective)
+- Flag instructions that reference specific model versions — those are likely stale

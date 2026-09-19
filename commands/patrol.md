@@ -1,13 +1,13 @@
-# Patrol — Codebase Hygiene
+# Patrol — Daily Codebase Hygiene
 
-Run all patrol sub-routines on the current repo. Report findings and fix what's safe to fix.
+Run all patrol sub-routines on the current repo. Opens one PR per category (skip if nothing found).
 
 ## Instructions
 
 Run these checks sequentially on the current repo:
 
 ### 1. Abstraction Police
-Scan for near-duplicate abstractions (functions, classes, utilities that do ~the same thing with different names or slight variations).
+Scan for near-duplicate abstractions (functions, classes, utilities that do ~the same thing with different names or slight variations). Look across the entire codebase, not just recent changes.
 
 Signs of duplication:
 - Two functions with different names but 70%+ similar logic
@@ -39,9 +39,19 @@ Remove the flag and the dead branch. Keep only the winning path.
 - Tests for code that no longer exists
 - Snapshot files that are orphaned
 
+## Output
+
+For each category with findings:
+1. Fix the issues on a new branch `patrol/<category>-YYYY-MM-DD`
+2. Open a PR with clear description of what was cleaned
+3. If no findings in a category, skip silently
+
+If nothing found across all categories, say "Clean — nothing to patrol today."
+
 ## Rules
 
-- Make changes directly — don't just report
-- Each category gets its own commit (if changes are made)
-- Don't touch code in the middle of an active PR (check git status first)
-- If unsure whether something is dead, grep for it in the full repo before deleting
+- Don't refactor working code — only remove/unify dead weight
+- Don't touch test infrastructure or CI config
+- Don't delete code you're unsure about — when in doubt, skip
+- One PR per category, not one giant PR
+- Keep PR descriptions concise: list what was removed/unified and why

@@ -34,11 +34,40 @@ claude plugin install tracymelody/jiawei-cc-kit
 
 | Command | What it does |
 |---------|-------------|
+| `/interview` | **NEW** — Interview you before coding to surface requirement-level unknowns. Outputs an assembled implementation brief. |
+| `/blindspot` | Scan the current diff/area for unknown unknowns — things nobody thought to check |
+| `/da` | Devil's advocate — Claude + Gemini cross-challenge the current decision |
+| `/ablate` | Audit system prompts for bloat, dead rules, and cargo-culted instructions |
 | `/go` | Test → Simplify → Commit → Push → PR (one shot) |
 | `/patrol` | Find and fix: dead code, duplicates, stale flags, test rot |
-| `/ablate` | Audit system prompts for bloat and dead rules (LLM projects) |
-| `/blindspot` | Find what nobody thought to check in the current diff |
 | `/test` | Smart test runner with failure analysis |
+| `/lint` | Python linter (black, isort, flake8, mypy) on changed files |
+| `/record` | Auto-record progress to STATUS.md, PROGRESS.md, DECISIONS.md |
+| `/longtask` | Track tasks too large for one session |
+
+### Hooks
+
+| Hook | Type | What it does |
+|------|------|-------------|
+| `protect-tests` | PreToolUse | **NEW** — Blocks Claude from "fixing" tests by deleting, skipping, or commenting out assertions. Protects the entire verification chain. |
+
+Install the hook:
+```bash
+cp hooks/protect-tests.sh ~/.claude/hooks/
+chmod +x ~/.claude/hooks/protect-tests.sh
+```
+
+Add to `~/.claude/settings.json` under `hooks.PreToolUse`:
+```json
+{
+  "matcher": "Edit|Write|MultiEdit",
+  "hooks": [{
+    "type": "command",
+    "command": "~/.claude/hooks/protect-tests.sh",
+    "timeout": 10
+  }]
+}
+```
 
 ### JIRA Integration
 
@@ -52,6 +81,12 @@ Requires `mcp-atlassian` MCP server configured. See [setup](#jira-setup).
 ## Usage Examples
 
 ```
+# Interview before a complex task
+/interview Add multi-tenant support to the auth module
+
+# Scan for blindspots in current changes
+/blindspot
+
 # Brainstorm a decision
 "Should we use GraphQL or REST for the new API?"
 
@@ -73,6 +108,7 @@ Requires `mcp-atlassian` MCP server configured. See [setup](#jira-setup).
 
 - Claude Code CLI v1.0+
 - `gh` CLI (for PR workflows)
+- `jq` (for hooks)
 - `mcp-atlassian` MCP server (optional, for JIRA integration)
 
 ## JIRA Setup
@@ -103,7 +139,8 @@ This plugin focuses on team workflows and code quality. For other capabilities, 
 
 | Plugin | What it adds | Install |
 |--------|-------------|---------|
-| **mattpocock/skills** | `/grill-me` (idea sharpening), `/to-spec`, `/to-issues`, `/tdd` | `npx skills@latest add mattpocock/skills` |
+| **DreambigOu/ELI5** | Audience-adaptive explanations (ELI5, ELI-manager, ELI-senior) | `claude plugin install DreambigOu/ELI5` |
+| **mattpocock/skills** | `/grill-me` (idea sharpening), `/to-spec`, `/to-issues`, `/tdd`, `/teach` | `npx skills@latest add mattpocock/skills` |
 | **chrome-devtools-mcp** | Browser debugging, screenshots, performance analysis | `claude plugin install chrome-devtools-mcp` |
 | **figma** | Design ↔ code bridge, Figma file editing | `claude plugin install figma` |
 | **code-review** | Automated PR review with confidence scoring | `claude plugin install code-review` |
@@ -120,3 +157,5 @@ This plugin encodes battle-tested patterns for AI-assisted development:
 3. **Evidence over claims** — every review finding needs a verifiable check, not speculation
 4. **Sequential building** — features are built and verified one at a time (changes interact)
 5. **Compounding lessons** — every sprint retro feeds rules that improve future sessions
+6. **Interview before implementation** — surface unknowns before writing code, not after
+7. **Protect the verification chain** — tests are sacred; never disable them to fake green
