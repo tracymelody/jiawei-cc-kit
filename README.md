@@ -5,8 +5,11 @@ An opinionated Claude Code plugin — AI Dream Team (5 expert personas) for brai
 ## Install
 
 ```bash
-claude plugin install tracymelody/jiawei-cc-kit
+claude plugin marketplace add tracymelody/jiawei-cc-kit
+claude plugin install jiawei-cc-kit@jiawei-cc-kit
 ```
+
+Restart Claude Code afterwards. Update later with `claude plugin update jiawei-cc-kit`.
 
 ## What's included
 
@@ -51,23 +54,7 @@ claude plugin install tracymelody/jiawei-cc-kit
 |------|------|-------------|
 | `protect-tests` | PreToolUse | **NEW** — Blocks Claude from "fixing" tests by deleting, skipping, or commenting out assertions. Protects the entire verification chain. |
 
-Install the hook:
-```bash
-cp hooks/protect-tests.sh ~/.claude/hooks/
-chmod +x ~/.claude/hooks/protect-tests.sh
-```
-
-Add to `~/.claude/settings.json` under `hooks.PreToolUse`:
-```json
-{
-  "matcher": "Edit|Write|MultiEdit",
-  "hooks": [{
-    "type": "command",
-    "command": "~/.claude/hooks/protect-tests.sh",
-    "timeout": 10
-  }]
-}
-```
+Registered automatically by the plugin (`hooks/hooks.json`) — no manual copy, no `settings.json` edit. Needs `jq`. Uninstalling the plugin removes it.
 
 ### JIRA Integration
 

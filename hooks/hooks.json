@@ -1,0 +1,17 @@
+{
+  "description": "protect-tests: block edits that delete, skip, or gut tests instead of fixing the code",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/protect-tests.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
