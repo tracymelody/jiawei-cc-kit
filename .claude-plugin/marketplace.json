@@ -1,0 +1,25 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "jiawei-cc-kit",
+  "version": "1.0.0",
+  "description": "Jiawei's Claude Code kit — AI Dream Team workflows and code quality patrol",
+  "owner": {
+    "name": "Jiawei Cui",
+    "url": "https://github.com/tracymelody"
+  },
+  "plugins": [
+    {
+      "name": "jiawei-cc-kit",
+      "source": "./",
+      "description": "AI Dream Team workflows: 5 expert personas for brainstorming, code review, sprints, bug diagnosis, and code quality patrol. Works with any project — frontend or backend.",
+      "category": "development",
+      "tags": [
+        "workflows",
+        "code-review",
+        "code-quality",
+        "personas",
+        "sprint"
+      ]
+    }
+  ]
+}
